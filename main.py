@@ -9,22 +9,19 @@ from sklearn.naive_bayes import MultinomialNB
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.svm import SVC
 
-from sklearn.metrics import accuracy_score
-from sklearn.model_selection import train_test_split
-from sklearn.model_selection import cross_val_score
+from sklearn.metrics import accuracy_score, precision_score
+from sklearn.model_selection import train_test_split, cross_val_score
 
 
 # Load data
 df = pd.read_csv('spam.csv', encoding='windows-1252')
-
 # Extract text data
-text_data = df['v2']
-
+text = df['text']
 # Preprocess the text data using TF-IDF vectorization
 vectorizer = TfidfVectorizer()
-x = vectorizer.fit_transform(text_data)
-y = df['v1']
-X_train, X_test, y_train, y_test = train_test_split(x, y, test_size=.3, train_size=.7)
+x = vectorizer.fit_transform(text)
+y = df['label']
+X_train, X_test, y_train, y_test = train_test_split(x, y, test_size=.7)
 
 # Creating the models
 DecisionTreeModel = DecisionTreeClassifier()
@@ -47,13 +44,36 @@ for model_name, model in models.items():
     model.fit(X_train, y_train)
     predicted = model.predict(X_test)
     accuracy = accuracy_score(y_test, predicted)
+    precision = precision_score(y_test, predicted, pos_label='spam')
     results[model_name] = accuracy
 # Print results
-    print(f'{model_name} Accuracy = {accuracy}')
+    print(model_name)
+    print("\tAccuracy = ", accuracy)
+    print("\tPrecision = ", precision)
 
 print()
 
-# Perform cross-validation and statistical tests
+# df = pd.read_csv('email_classification.csv', encoding='windows-1252')
+# text = df['text']
+# x = vectorizer.fit_transform(text)
+# y = df['label']
+# X_train, X_test, y_train, y_test = train_test_split(x, y, test_size=.7)
+#
+#
+# results = {}
+# for model_name, model in models.items():
+#     model.fit(X_train, y_train)
+#     predicted = model.predict(X_test)
+#     accuracy = accuracy_score(y_test, predicted)
+#     precision = precision_score(y_test, predicted, pos_label='spam')
+#     results[model_name] = accuracy
+#     print(model_name)
+#     print("\tAccuracy = ", accuracy)
+#     print("\tPrecision = ", precision)
+#
+# print()
+
+# Perform cross-validation
 cv_scores = {}
 for model_name, model in models.items():
     cv_scores[model_name] = cross_val_score(model, X_train, y_train, cv=5)
@@ -66,4 +86,6 @@ print()
 for model_name, model in models.items():
     if model_name != 'Naive Bayes':
         t_stat, p_value = stats.ttest_rel(cv_scores['Naive Bayes'], cv_scores[model_name])
-        print(f'Stat test between {model_name} and Naive Bayes: t-stat = {t_stat}, p-value = {p_value}')
+        print(f'Stat test between {model_name} and Naive Bayes')
+        print(f'\tt-stat = {t_stat}')
+        print(f'\tp-value = {p_value}')
