@@ -14,7 +14,7 @@ from sklearn.model_selection import train_test_split, cross_val_score
 
 
 # Load data
-df = pd.read_csv('spam.csv', encoding='windows-1252')
+df = pd.read_csv('data/spam.csv', encoding='windows-1252')
 # Extract text data
 text = df['text']
 # Preprocess the text data using TF-IDF vectorization
@@ -53,7 +53,7 @@ for model_name, model in models.items():
 
 print()
 
-# df = pd.read_csv('email_classification.csv', encoding='windows-1252')
+# df = pd.read_csv('data/email_classification.csv', encoding='windows-1252')
 # text = df['text']
 # x = vectorizer.fit_transform(text)
 # y = df['label']
